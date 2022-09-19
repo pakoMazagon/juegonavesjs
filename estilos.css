@@ -1,0 +1,21 @@
+body{
+    background-color: black;
+    margin:0;
+    border-bottom: 30px solid violet;
+    height: 100vh;
+    box-sizing: border-box;
+    position: relative;
+    background-image:url("img/espacio.jpg");
+    background-size: cover;
+    overflow: hidden;
+}
+
+#nave{
+    position: absolute;
+    bottom: 0;
+}
+
+.meteorito{
+    position: absolute;
+    bottom: 0;
+}

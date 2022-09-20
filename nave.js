@@ -1,6 +1,9 @@
 window.onload=inicio;
 window.onkeydown=keyboard;
+//window.ontouchmove=mobile;
 window.onresize=tomarMedidas;
+window.ondrag=mouseMobile;
+window.onclick=mouseMobile;
 let nave;
 let x, y = 0;
 let widhtNav, widhtNave, heightNav, heigthNave;
@@ -11,6 +14,7 @@ let sonido;
 
 function inicio(){
     nave = document.querySelector("#nave");
+    nave.onmousedown=mouseDrag;
     tomarMedidas();
     x = (widhtNav/2)-(widhtNave/2);
     ubicarNave();
@@ -19,9 +23,9 @@ function inicio(){
     sonido = document.querySelector("audio");
 }
 
-const reproducir = (aud) => {
+const reproducir = async (aud) => {
     sonido.src="audios/"+aud;
-    sonido.play();
+    await sonido.play();
     
 }
 
@@ -156,3 +160,40 @@ const naveRight = (size) => {
         x = -widhtNave+size;    
     ubicarNave();    
 }
+
+function mouseMobile(e){
+    ubicarNave();    
+}
+
+function mouseDrag(event) {
+    // (1) preparar para mover: hacerlo absoluto y ponerlo sobre todo con el z-index
+    nave.style.position = 'absolute';
+    nave.style.zIndex = 1000;
+  
+    // quitar cualquier padre actual y moverlo directamente a body
+    // para posicionarlo relativo al body
+    document.body.append(nave);
+  
+    // centrar la pelota en las coordenadas (pageX, pageY)
+    function moveAt(pageX, pageY) {
+        nave.style.left = pageX - nave.offsetWidth / 2 + 'px';
+        nave.style.top = pageY - nave.offsetHeight / 2 + 'px';
+    }
+  
+    // mover nuestra pelota posicionada absolutamente bajo el puntero
+    moveAt(event.pageX, event.pageY);
+  
+    function onMouseMove(event) {
+      moveAt(event.pageX, event.pageY);
+    }
+  
+    // (2) mover la pelota con mousemove
+    document.addEventListener('mousemove', onMouseMove);
+  
+    // (3) soltar la pelota, quitar cualquier manejador de eventos innecesario
+    nave.onmouseup = function() {
+      document.removeEventListener('mousemove', onMouseMove);
+      nave.onmouseup = null;
+    };
+  
+  };

@@ -2,8 +2,6 @@ window.onload=inicio;
 window.onkeydown=keyboard;
 //window.ontouchmove=mobile;
 window.onresize=tomarMedidas;
-window.ondrag=mouseMobile;
-window.onclick=mouseMobile;
 let nave;
 let x, y = 0;
 let widhtNav, widhtNave, heightNav, heigthNave;
@@ -12,20 +10,25 @@ let numMeteorito = 0;
 let vidas = 3;
 let sonido;
 
+const milisecondsNewMeteorito = 3000;
+const milisecondsNewPositionMeteorito = 100;
+
 function inicio(){
     nave = document.querySelector("#nave");
-    nave.onmousedown=mouseDrag;
+    //nave.onmousedown=mouseDrag;
+    window.onpointerdown=mouseDrag;
+    //window.ontouchstart=mouseDrag;
     tomarMedidas();
     x = (widhtNav/2)-(widhtNave/2);
     ubicarNave();
     newMeteorito()
-    cronoNewMeteorito = setInterval(newMeteorito, 2000);
+    cronoNewMeteorito = setInterval(newMeteorito, milisecondsNewMeteorito);
     sonido = document.querySelector("audio");
 }
 
 const reproducir = async (aud) => {
     sonido.src="audios/"+aud;
-    await sonido.play();
+    //await sonido.play();
     
 }
 
@@ -55,7 +58,7 @@ const newMeteorito = () => {
                 
         }
         
-    },1);
+    },milisecondsNewPositionMeteorito);
 }
 
 const comprobarVidas = () => {
@@ -101,14 +104,6 @@ function tomarMedidas(){
         x = widhtNav - widhtNave;
         ubicarNave();
     }
-}
-
-const ubicarMeteorito = (imgMet) => {
-    /*console.log(imgMet.style.bottom);
-    imgMet.style.bottom = `${imgMet.style.bottom - 40}px`;
-    imgMet.style.left = `${imgMet.style.left + 40}px`;
-    console.log(imgMet.style.bottom);*/
-    return console.log("me cago en la puta");
 }
 
 const ubicarNave = () => {
@@ -167,33 +162,58 @@ function mouseMobile(e){
 
 function mouseDrag(event) {
     // (1) preparar para mover: hacerlo absoluto y ponerlo sobre todo con el z-index
-    nave.style.position = 'absolute';
-    nave.style.zIndex = 1000;
+    //nave.style.position = 'absolute';
+    //nave.style.zIndex = 1000;
   
     // quitar cualquier padre actual y moverlo directamente a body
     // para posicionarlo relativo al body
-    document.body.append(nave);
+    //document.body.append(nave);
   
     // centrar la pelota en las coordenadas (pageX, pageY)
     function moveAt(pageX, pageY) {
+        x = pageX - nave.offsetWidth / 2;
         nave.style.left = pageX - nave.offsetWidth / 2 + 'px';
-        nave.style.top = pageY - nave.offsetHeight / 2 + 'px';
+        y = heightNav - pageY - nave.offsetHeight / 2;
+        nave.style.bottom = heightNav - pageY - nave.offsetHeight / 2 + 'px';
+        ubicarNave();
     }
   
     // mover nuestra pelota posicionada absolutamente bajo el puntero
-    moveAt(event.pageX, event.pageY);
+    //moveAt(event.pageX, event.pageY);
+    //pako:
+    let xDir = x-15,yDir = y-15;
+    if(event.pageX > x+(widhtNave/2))
+        xDir = x+15;
+    if(heightNav-event.pageY > y+(heigthNave/2))
+        yDir = y+15
+    moveAt2(xDir, yDir);
+    function moveAt2(pageX, pageY) {
+        x = pageX;
+        if(x+widhtNave<=15){
+            x = widhtNav-20;
+        }
+        else if(x>widhtNav-(widhtNave/1.5)){
+            x = -widhtNave+10;
+        }
+        nave.style.left = x+ 'px';            
+        if(pageY>0 && heightNav - heigthNave -30 > pageY){
+            y = pageY;
+            nave.style.bottom = pageY + 'px';
+        }        
+        ubicarNave();
+    }
   
-    function onMouseMove(event) {
+    function onPointerMove(event) {
       moveAt(event.pageX, event.pageY);
     }
   
-    // (2) mover la pelota con mousemove
-    document.addEventListener('mousemove', onMouseMove);
+    // (2) Este es para mover el mouse mover la pelota con mousemove
+    //document.addEventListener('pointermove', onPointerMove);
   
     // (3) soltar la pelota, quitar cualquier manejador de eventos innecesario
-    nave.onmouseup = function() {
+    /*nave.onmouseup = function() {
       document.removeEventListener('mousemove', onMouseMove);
       nave.onmouseup = null;
-    };
+    };*/
   
   };
